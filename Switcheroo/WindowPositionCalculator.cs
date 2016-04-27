@@ -4,6 +4,9 @@ using System.Windows.Forms;
 
 namespace Switcheroo
 {
+	/// <summary>
+	/// Calculates the position for the window given a Screen and window width and height
+	/// </summary>
 	public interface ICalculateWindowPosition
 	{
 		WindowPosition CalculateWindowPosition(Screen screen, double windowWidth, double windowHeight);
@@ -11,10 +14,6 @@ namespace Switcheroo
 
 	class WindowPositionCalculator : ICalculateWindowPosition
 	{
-		public WindowPositionCalculator()
-		{
-			
-		}
 		public WindowPosition CalculateWindowPosition(Screen screen, double windowWidth, double windowHeight)
 		{
 			return new WindowPosition
