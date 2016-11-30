@@ -39,6 +39,7 @@ using Switcheroo.Core;
 using Switcheroo.Core.Matchers;
 using Switcheroo.Properties;
 using Application = System.Windows.Application;
+using ContextMenu = System.Windows.Controls.ContextMenu;
 using MenuItem = System.Windows.Forms.MenuItem;
 using MessageBox = System.Windows.MessageBox;
 
@@ -680,5 +681,21 @@ namespace Switcheroo
             NextItem,
             PreviousItem
         }
+
+	    private void ListBoxItem_MouseRightClick(object sender, MouseButtonEventArgs e)
+	    {
+		    var item = sender as ListBoxItem;
+			// Check the Content property of item for the actual window data
+			// Check if the title is in the list of apps pinned to the bottom
+			//	- if no, display the context menu item to pin it
+			//		- if clicked, save the app title to the config settings and reload the list
+			//	- if yes, display the context menu item to unpin it
+			//		- if clicked, remove the app title from the config settings and reload the list
+			// In the LoadData() method, move pinned items to the bottom of the list (above the current window)
+
+		    var cm = this.FindResource("CmListItem") as ContextMenu;
+		    cm.PlacementTarget = sender as ListBoxItem;
+		    cm.IsOpen = true;
+	    }
     }
 }
