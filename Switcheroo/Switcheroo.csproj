@@ -100,6 +100,7 @@
     <Compile Include="InstanceSettings\AppViewModelExtensions.cs" />
     <Compile Include="InstanceSettings\NonPersistedSettings.cs" />
     <Compile Include="InstanceSettings\NonPersistedSettingsData.cs" />
+    <Compile Include="ISortTheAppList.cs" />
     <Compile Include="WindowCloser.cs" />
     <Compile Include="WindowHandleToCachedIconConverter.cs" />
     <Compile Include="WindowHandleToIconConverter.cs" />
