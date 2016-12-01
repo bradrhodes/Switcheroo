@@ -684,7 +684,7 @@ namespace Switcheroo
 
 	    private void ListBoxItem_MouseRightClick(object sender, MouseButtonEventArgs e)
 	    {
-		    var item = sender as ListBoxItem;
+	        var appWindow = (sender as ListBoxItem)?.Content as AppWindowViewModel;
 			// Check the Content property of item for the actual window data
 			// Check if the title is in the list of apps pinned to the bottom
 			//	- if no, display the context menu item to pin it
@@ -692,10 +692,17 @@ namespace Switcheroo
 			//	- if yes, display the context menu item to unpin it
 			//		- if clicked, remove the app title from the config settings and reload the list
 			// In the LoadData() method, move pinned items to the bottom of the list (above the current window)
+	        if (appWindow.IsPinnedToBottom())
+	        {
+	            var cmUnpinFromBottom = this.FindResource("CmUnpinFromBottom") as ContextMenu;
+	            cmUnpinFromBottom.PlacementTarget = sender as ListBoxItem;
+	            cmUnpinFromBottom.IsOpen = true;
+	            return;
+	        }
 
-		    var cm = this.FindResource("CmListItem") as ContextMenu;
-		    cm.PlacementTarget = sender as ListBoxItem;
-		    cm.IsOpen = true;
+	        var cmPinToBottom = this.FindResource("CmPinToBottom") as ContextMenu;
+	        cmPinToBottom.PlacementTarget = sender as ListBoxItem;
+	        cmPinToBottom.IsOpen = true;
 	    }
     }
 }
