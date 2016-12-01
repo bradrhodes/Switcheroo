@@ -23,8 +23,5 @@
     <Setting Name="AltTabHook" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="PinnedToBottom" Type="System.Collections.Generic.List&lt;System.String&gt;" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
   </Settings>
 </SettingsFile>

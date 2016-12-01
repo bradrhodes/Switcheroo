@@ -94,9 +94,12 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AppWindowViewModel.cs" />
-    <Compile Include="Extensions.cs" />
     <Compile Include="IconToBitmapConverter.cs" />
     <Compile Include="BoolToWhateverConverter.cs" />
+    <Compile Include="InstanceSettings\AmbientSingleton.cs" />
+    <Compile Include="InstanceSettings\AppViewModelExtensions.cs" />
+    <Compile Include="InstanceSettings\NonPersistedSettings.cs" />
+    <Compile Include="InstanceSettings\NonPersistedSettingsData.cs" />
     <Compile Include="WindowCloser.cs" />
     <Compile Include="WindowHandleToCachedIconConverter.cs" />
     <Compile Include="WindowHandleToIconConverter.cs" />

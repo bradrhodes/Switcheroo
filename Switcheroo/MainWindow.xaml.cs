@@ -37,9 +37,11 @@ using ManagedWinapi;
 using ManagedWinapi.Windows;
 using Switcheroo.Core;
 using Switcheroo.Core.Matchers;
+using Switcheroo.InstanceSettings;
 using Switcheroo.Properties;
 using Application = System.Windows.Application;
 using ContextMenu = System.Windows.Controls.ContextMenu;
+using ListBox = System.Windows.Controls.ListBox;
 using MenuItem = System.Windows.Forms.MenuItem;
 using MessageBox = System.Windows.MessageBox;
 
@@ -57,6 +59,8 @@ namespace Switcheroo
         public static readonly RoutedUICommand SwitchToWindowCommand = new RoutedUICommand();
         public static readonly RoutedUICommand ScrollListDownCommand = new RoutedUICommand();
         public static readonly RoutedUICommand ScrollListUpCommand = new RoutedUICommand();
+        public static readonly RoutedUICommand PinToBottomCommand = new RoutedUICommand("Pin To Bottom", "PinToBottom", typeof(AppWindowViewModel), new InputGestureCollection {new KeyGesture(Key.L, ModifierKeys.Control)});
+        public static readonly RoutedUICommand UnpinFromBottomCommand = new RoutedUICommand("Unpin From Bottom", "UnpinFromBottom", typeof(MainWindow), new InputGestureCollection {new KeyGesture(Key.H, ModifierKeys.Control)});
         private OptionsWindow _optionsWindow;
         private AboutWindow _aboutWindow;
         private AltTabHook _altTabHook;
@@ -704,5 +708,19 @@ namespace Switcheroo
 	        cmPinToBottom.PlacementTarget = sender as ListBoxItem;
 	        cmPinToBottom.IsOpen = true;
 	    }
+
+        private void PinCommand(object sender, ExecutedRoutedEventArgs e)
+        {
+            var appWindow = lb.SelectedItem as AppWindowViewModel;
+
+            appWindow.PinToBottom();
+        }
+
+        private void UnpinCommand(object sender, ExecutedRoutedEventArgs e)
+        {
+            var appWindow = lb.SelectedItem as AppWindowViewModel;
+
+            appWindow.UnpinFromBottom();
+        }
     }
 }
