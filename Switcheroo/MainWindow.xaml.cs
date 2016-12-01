@@ -40,6 +40,7 @@ using Switcheroo.Core;
 using Switcheroo.Core.Matchers;
 using Switcheroo.Properties;
 using Application = System.Windows.Application;
+using ContextMenu = System.Windows.Controls.ContextMenu;
 using MenuItem = System.Windows.Forms.MenuItem;
 using MessageBox = System.Windows.MessageBox;
 using MouseCursor = System.Windows.Forms.Cursor;
@@ -58,12 +59,14 @@ namespace Switcheroo
         public static readonly RoutedUICommand SwitchToWindowCommand = new RoutedUICommand();
         public static readonly RoutedUICommand ScrollListDownCommand = new RoutedUICommand();
         public static readonly RoutedUICommand ScrollListUpCommand = new RoutedUICommand();
-		
-		private static readonly ICalculateWindowPosition WindowPositionCalculator = new WindowPositionCalculator();
+        public static readonly RoutedUICommand PinToBottomCommand = new RoutedUICommand("Pin To Bottom", "PinToBottom", typeof(AppWindowViewModel), new InputGestureCollection {new KeyGesture(Key.L, ModifierKeys.Control)});
+        public static readonly RoutedUICommand UnpinFromBottomCommand = new RoutedUICommand("Unpin From Bottom", "UnpinFromBottom", typeof(MainWindow), new InputGestureCollection {new KeyGesture(Key.H, ModifierKeys.Control)});
+        private static readonly ICalculateWindowPosition WindowPositionCalculator = new WindowPositionCalculator();
         private OptionsWindow _optionsWindow;
         private AboutWindow _aboutWindow;
         private AltTabHook _altTabHook;
         private SystemWindow _foregroundWindow;
+	    private List<IntPtr> _pinnedToBottom = new List<IntPtr>();
 
         public MainWindow()
         {
@@ -251,19 +254,7 @@ namespace Switcheroo
         /// </summary>
         private void LoadData(InitialFocus focus)
         {
-            _unfilteredWindowList = new WindowFinder().GetWindows().Select(window => new AppWindowViewModel(window)).ToList();
-
-            var firstWindow = _unfilteredWindowList.FirstOrDefault();
-
-            var foregroundWindowMovedToBottom = false;
-            
-            // Move first window to the bottom of the list if it's related to the foreground window
-            if (firstWindow != null && AreWindowsRelated(firstWindow.AppWindow, _foregroundWindow))
-            {
-                _unfilteredWindowList.RemoveAt(0);
-                _unfilteredWindowList.Add(firstWindow);
-                foregroundWindowMovedToBottom = true;
-            }
+            _unfilteredWindowList = new WindowFinder().GetWindows().Select(window => new AppWindowViewModel(window)).Sort(_foregroundWindow, _pinnedToBottom);
 
             _filteredWindowList = new ObservableCollection<AppWindowViewModel>(_unfilteredWindowList);
             _windowCloser = new WindowCloser();
@@ -278,7 +269,7 @@ namespace Switcheroo
             lb.DataContext = null;
             lb.DataContext = _filteredWindowList;
 
-            FocusItemInList(focus, foregroundWindowMovedToBottom);
+            FocusItemInList(focus, _foregroundWindow);
 
             tb.Clear();
             tb.Focus();
@@ -286,17 +277,13 @@ namespace Switcheroo
             ScrollSelectedItemIntoView();
         }
 
-        private static bool AreWindowsRelated(SystemWindow window1, SystemWindow window2)
-        {
-            return window1.HWnd == window2.HWnd || window1.Process.Id == window2.Process.Id;
-        }
-
-        private void FocusItemInList(InitialFocus focus, bool foregroundWindowMovedToBottom)
+        private void FocusItemInList(InitialFocus focus, SystemWindow foregroundWindow)
         {
             if (focus == InitialFocus.PreviousItem)
             {
                 var previousItemIndex = lb.Items.Count - 1;
-                if (foregroundWindowMovedToBottom)
+	            lb.SelectedIndex = previousItemIndex;
+                if ((lb.SelectedItem as AppWindowViewModel).AppWindow.HasTheSameHandleAs(foregroundWindow))
                 {
                     previousItemIndex--;
                 }
@@ -704,6 +691,49 @@ namespace Switcheroo
             var newHeight = HelpPanel.Height > 0 ? 0 : +17;
             HelpPanel.BeginAnimation(HeightProperty, new DoubleAnimation(HelpPanel.Height, newHeight, duration));
         }
+
+	    private void ListBoxItem_MouseRightClick(object sender, MouseButtonEventArgs e)
+	    {
+		    var appWindow = (sender as ListBoxItem).Content as AppWindowViewModel;
+
+	        if (appWindow.IsPinnedToBottom(_pinnedToBottom))
+	        {
+	            var cmUnpinFromBottom = this.FindResource("CmUnpinFromBottom") as ContextMenu;
+	            cmUnpinFromBottom.PlacementTarget = sender as ListBoxItem;
+	            cmUnpinFromBottom.IsOpen = true;
+	            return;
+	        }
+
+	        var cmPinToBottom = this.FindResource("CmPinToBottom") as ContextMenu;
+	        cmPinToBottom.PlacementTarget = sender as ListBoxItem;
+	        cmPinToBottom.IsOpen = true;
+	    }
+
+	    private void PinCommand(object sender, ExecutedRoutedEventArgs e)
+	    {
+            var appWindow = lb.SelectedItem as AppWindowViewModel;
+
+            appWindow.PinToBottom(_pinnedToBottom);
+
+			ReorderList();
+	    }
+
+	    private void UnpinCommand(object sender, ExecutedRoutedEventArgs e)
+	    {
+            var appWindow = lb.SelectedItem as AppWindowViewModel;
+
+            appWindow.UnpinFromBottom(_pinnedToBottom);
+
+			ReorderList();
+	    }
+
+	    private void ReorderList()
+	    {
+		    var windows = lb.Items.Cast<AppWindowViewModel>().Sort(_foregroundWindow, _pinnedToBottom);
+
+		    lb.DataContext = windows;
+		    lb.SelectedIndex = 0;
+	    }
 
         #endregion
 
