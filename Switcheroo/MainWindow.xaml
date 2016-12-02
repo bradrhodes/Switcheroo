@@ -32,7 +32,6 @@
         <KeyBinding Command="local:MainWindow.ScrollListDownCommand" Key="Down" />
         <KeyBinding Command="local:MainWindow.ScrollListDownCommand" Modifiers="Control" Key="J" />
         <KeyBinding Command="local:MainWindow.ScrollListDownCommand" Modifiers="Control" Key="N" />
-        <KeyBinding Command="local:MainWindow.SwitchToWindowCommand" Modifiers="Control" Key="L" />
     </Window.InputBindings>
 
     <Window.Resources>
